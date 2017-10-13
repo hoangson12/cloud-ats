@@ -16,7 +16,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -24,7 +24,15 @@ import org.ats.common.StringUtil;
 import org.ats.common.http.HttpClientFactory;
 import org.ats.common.http.HttpClientUtil;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.rythmengine.Rythm;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author <a href="mailto:haithanh0809@gmail.com">Nguyen Thanh Hai</a>
@@ -34,22 +42,7 @@ import org.rythmengine.Rythm;
 public class JenkinsMavenJob {
   
   /** .*/
-  private final String name;
-  
-  /** .*/
-  private final String assigned;
-  
-  /** .*/
-  private final String gitURL;
-  
-  /** .*/
-  private final String ref;
-  
-  /** .*/
-  private final String goals;
-  
-  /** .*/
-  private final String mavenOpts;
+  private final String name, remote, pomLocation, goals;
   
   /** .*/
   private final JenkinsMaster master;
@@ -67,59 +60,74 @@ public class JenkinsMavenJob {
    * @param mavenOpts empty string for not specified.
    * @throws IOException 
    */
-  public JenkinsMavenJob(JenkinsMaster master, String name, String assigned, String gitURL, String ref, String goals, String mavenOpts) throws IOException {
+  public JenkinsMavenJob(JenkinsMaster master, String name, String remote, String pomLocation, String goals) throws IOException {
     this.name = name;
-    this.assigned = assigned;
-    this.gitURL = gitURL;
-    this.ref = ref;
+    this.remote = remote;
+    this.pomLocation = pomLocation;
     this.goals = goals;
-    this.mavenOpts = mavenOpts;
     this.master = master;
-    
-    String jobTmpl = StringUtil.readStream(Thread.currentThread().getContextClassLoader().getResourceAsStream("jenkins-job-template"));
-    this.jobTmpl = Rythm.render(jobTmpl, this.ref);
-    
-    String jobJsonTmpl = StringUtil.readStream(Thread.currentThread().getContextClassLoader().getResourceAsStream("jenkins-job-json-template"));
     
     Map<String, String> params = new HashMap<String, String>();
     params.put("name", this.name);
-    params.put("signed", this.assigned);
-    params.put("gitUrl", this.gitURL);
-    params.put("ref", this.ref);
+    params.put("remote", this.remote);
+    params.put("pomLocation", this.pomLocation);
     params.put("goals", this.goals);
-    params.put("mavenOpts", this.mavenOpts);
     
+    String jobTmpl = StringUtil.readStream(Thread.currentThread().getContextClassLoader().getResourceAsStream("jenkins-job-template"));
+    this.jobTmpl = Rythm.render(jobTmpl, params);
+    
+    String jobJsonTmpl = StringUtil.readStream(Thread.currentThread().getContextClassLoader().getResourceAsStream("jenkins-job-json-template"));
     this.jobJsonTmpl = Rythm.render(jobJsonTmpl, params);
   }
   
   public byte[] getConsoleOutput(int buildNumber, int start) throws IOException {
     String url = master.buildURL("job/" + encodeURIComponent(name) + "/" + buildNumber + "/logText/progressiveHtml");
-    DefaultHttpClient client = HttpClientFactory.getInstance();
+    CloseableHttpClient client = HttpClientFactory.getInstance();
     HttpContext httpContext = new BasicHttpContext();
     HttpPost post = new HttpPost(url);
     List<NameValuePair> list = new ArrayList<NameValuePair>();
     list.add(new BasicNameValuePair("start", String.valueOf(start)));
     HttpResponse res = client.execute(post, httpContext);
-    return HttpClientUtil.getContentBodyAsByteArray(res);
+    
+    String str = HttpClientUtil.getContentBodyAsString(res);
+    Document doc = Jsoup.parse(str);
+    StringBuilder sb = new StringBuilder();
+    for (Node node : doc.body().childNodes()) {
+      if (node instanceof TextNode) {
+        sb.append(node.attr("text"));
+      } else {
+        sb.append(((Element) node).text());
+      }
+    }
+    return sb.toString().getBytes("UTF-8");
   }
   
-  public boolean isBuilding(int buildNumber) throws UnsupportedEncodingException  {
+  public boolean isBuilding(int buildNumber) throws Exception {
     String url = master.buildURL("job/" + encodeURIComponent(name) + "/" + buildNumber + "/api/json");
-    DefaultHttpClient client = HttpClientFactory.getInstance();
-    String response = null;
+    CloseableHttpClient client = HttpClientFactory.getInstance();
+    HttpResponse response = HttpClientUtil.execute(client, url);
+    
+    String str = HttpClientUtil.getContentBodyAsString(response);
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode root = mapper.readTree(str);
+    return root.get("building").asBoolean();
+  }
+  
+  public boolean isBuilding(int buildNumber, long start, long timeout) throws Exception  {
     try {
-      response = HttpClientUtil.fetch(client, url);
-      JSONObject json = new JSONObject(response);
-      return json.getBoolean("building");
+      return isBuilding(buildNumber);
     } catch (Exception e) {
-      System.out.println(response);
-      return false;
+      if ((System.currentTimeMillis() - start) < timeout) {
+        Thread.sleep(3000);
+        return isBuilding(buildNumber, start, timeout);
+      }
+      throw e;
     }
   }
   
   public String getStatus(int buildNumber) throws IOException {
     String url = master.buildURL("job/" + encodeURIComponent(name) + "/" + buildNumber + "/api/json");
-    DefaultHttpClient client = HttpClientFactory.getInstance();
+    CloseableHttpClient client = HttpClientFactory.getInstance();
     String response = HttpClientUtil.fetch(client, url);
     JSONObject json = new JSONObject(response);
     return json.getString("result");
@@ -127,7 +135,7 @@ public class JenkinsMavenJob {
   
   public boolean delete() throws IOException {
     String url = master.buildURL("job/" + encodeURIComponent(name) + "/doDelete");
-    DefaultHttpClient client = HttpClientFactory.getInstance();
+    CloseableHttpClient client = HttpClientFactory.getInstance();
     HttpContext httpContext = new BasicHttpContext();
     HttpPost post = new HttpPost(url);
     HttpResponse res = client.execute(post, httpContext);
@@ -141,7 +149,7 @@ public class JenkinsMavenJob {
    */
   public int submit() throws IOException {
     String url = master.buildURL("createItem");
-    DefaultHttpClient client = HttpClientFactory.getInstance();
+    CloseableHttpClient client = HttpClientFactory.getInstance();
     HttpContext httpContext = new BasicHttpContext();
     HttpPost post = new HttpPost(url);
 
@@ -164,7 +172,6 @@ public class JenkinsMavenJob {
       post.setEntity(this.buildFormData());
       res = client.execute(post, httpContext);
       body = HttpClientUtil.getContentBodyAsString(res);
-      
       if (body.length() == 0) {
         return build();
       }
@@ -172,20 +179,51 @@ public class JenkinsMavenJob {
     return -1;
   }
   
-  public int build() throws IOException {
-    DefaultHttpClient client = HttpClientFactory.getInstance();
-    String url = master.buildURL("job/" + encodeURIComponent(this.name) + "/build?delay=0sec");
-    String body = HttpClientUtil.fetch(client, url);
-    
-    if (body.length() == 0) {
-      url = master.buildURL("job/" + encodeURIComponent(this.name) + "/api/json");
-      body = HttpClientUtil.fetch(client, url);
+  public boolean update() throws Exception {
+    CloseableHttpClient client = HttpClientFactory.getInstance();
+    HttpContext httpContext = new BasicHttpContext();
+    String url = master.buildURL("job/" + encodeURIComponent(this.name) + "/configSubmit");
+    HttpPost post = new HttpPost(url);
+    post.setEntity(this.buildFormData());
+    HttpResponse res = client.execute(post, httpContext);
+    return res.getStatusLine().getStatusCode() == 302;
+  }
+  
+  public boolean stop() {
+    try{
+      CloseableHttpClient client = HttpClientFactory.getInstance();
+      String url = master.buildURL("job/" + encodeURIComponent(this.name) + "/api/json");
+      String body = HttpClientUtil.fetch(client, url);
       JSONObject json = new JSONObject(body);
-      int nextBuildNumber = json.getInt("nextBuildNumber");
-      return nextBuildNumber == 1 ? 1 : nextBuildNumber - 1;
+      int currentbuildNumber = json.getInt("nextBuildNumber")-1;
+      HttpContext httpContext = new BasicHttpContext();
+      url = master.buildURL("job/" + encodeURIComponent(this.name) + "/"+currentbuildNumber+"/stop" );
+      HttpPost post = new HttpPost(url);
+      HttpResponse res = client.execute(post,httpContext);
+      return res.getStatusLine().getStatusCode() == 302;
     }
-    
-    return -1;
+    catch (Exception e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+  
+  public int build() {
+    try {
+      CloseableHttpClient client = HttpClientFactory.getInstance();
+      String url = master.buildURL("job/" + encodeURIComponent(this.name) + "/api/json");
+      String body = HttpClientUtil.fetch(client, url);
+      JSONObject json = new JSONObject(body);
+      int buildNumber = json.getInt("nextBuildNumber");
+
+      url = master.buildURL("job/" + encodeURIComponent(this.name) + "/build?delay=0sec");
+      body = HttpClientUtil.fetch(client, url);
+
+      return body.length() == 0 ? buildNumber : -1;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return -1;
+    }
   }
   
   private HttpEntity buildFormData() throws IOException {
@@ -207,12 +245,12 @@ public class JenkinsMavenJob {
         }
       }
     }
-    list.add(new BasicNameValuePair("_.assignedLabelString", assigned));
-    list.add(new BasicNameValuePair("name", name));
-    list.add(new BasicNameValuePair("_.url", gitURL));
-    list.add(new BasicNameValuePair("goals", goals));
-    list.add(new BasicNameValuePair("mavenOpts", mavenOpts));
-    list.add(new BasicNameValuePair("json", jobJsonTmpl));
+    list.add(new BasicNameValuePair("name", this.name));
+    list.add(new BasicNameValuePair("remote", this.remote));
+    list.add(new BasicNameValuePair("pomLocation", this.pomLocation));
+    list.add(new BasicNameValuePair("goals", this.goals));
+    list.add(new BasicNameValuePair("mavenOpts", ""));
+    list.add(new BasicNameValuePair("json", this.jobJsonTmpl));
 
     return new UrlEncodedFormEntity(list);
   }
@@ -234,21 +272,5 @@ public class JenkinsMavenJob {
   
   public String getName() {
     return name;
-  }
-
-  public String getAssigned() {
-    return assigned;
-  }
-
-  public String getGitURL() {
-    return gitURL;
-  }
-  
-  public String getGoals() {
-    return goals;
-  }
-  
-  public String getMavenOpts() {
-    return mavenOpts;
   }
 }

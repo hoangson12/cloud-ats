@@ -9,11 +9,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.apache.http.conn.HttpHostConnectException;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.ats.common.http.HttpClientFactory;
 import org.ats.common.http.HttpClientUtil;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * @author <a href="mailto:haithanh0809@gmail.com">Nguyen Thanh Hai</a>
@@ -32,33 +33,54 @@ public class JenkinsMaster {
   private int port;
   
   /** .*/
+  private String subfix;
+  
+  /** .*/
   private String[] systemNodes = { "master", "chef-workstation" };
   
-  public JenkinsMaster(String masterHost, String scheme, int port) {
+  public JenkinsMaster(String masterHost, String scheme, String subfix, int port) {
     this.masterHost = masterHost;
     this.scheme = scheme;
+    this.subfix = subfix;
     this.port = port;
   }
   
   public boolean isReady() throws IOException {
-    DefaultHttpClient client = HttpClientFactory.getInstance();
+    CloseableHttpClient client = HttpClientFactory.getInstance();
     String url = buildURL("api/json");
-    HttpResponse response = HttpClientUtil.execute(client, url);
-    return response.getStatusLine().getStatusCode() == 200;
-  }
-  
-  public boolean isReady(long timeout) throws IOException {
-    long start = System.currentTimeMillis();
-    while (true) {
-      if (this.isReady()) return true;
-      if ((System.currentTimeMillis() - start) < timeout) continue;
+    try {
+      HttpResponse response = HttpClientUtil.execute(client, url);
+      return response.getStatusLine().getStatusCode() == 200;
+    } catch (HttpHostConnectException e) {
       return false;
     }
   }
   
+  public boolean isReady(long timeout) throws IOException, InterruptedException {
+    long start = System.currentTimeMillis();
+    boolean ready = isReady();
+    if (!ready) return waitJenkinsMasterReadyUntil(start, timeout);
+    return ready;
+  }
+  
+  private boolean waitJenkinsMasterReadyUntil(long startTime, long timeout) throws IOException, InterruptedException {
+    boolean ready = isReady();
+    System.out.println("Jenkins master ready status is: " + ready);
+    if (!ready) {
+      
+      if (System.currentTimeMillis() - startTime > timeout) {
+        return false;
+      }
+      
+      Thread.sleep(15 * 1000);
+      return waitJenkinsMasterReadyUntil(startTime, timeout);
+    }
+    return ready;
+  }
+  
   public List<String> listSlaves() throws IOException {
     List<String> slaves = new ArrayList<String>();
-    DefaultHttpClient client = HttpClientFactory.getInstance();
+    CloseableHttpClient client = HttpClientFactory.getInstance();
     String json = HttpClientUtil.fetch(client, buildURL("computer/api/json"));
     JSONObject jsonObj = new JSONObject(json);
     JSONArray array = jsonObj.getJSONArray("computer");
@@ -78,13 +100,15 @@ public class JenkinsMaster {
   
   public void deleteAllSlaves() throws IOException {
     for (String slave : listSlaves()) {
-      new JenkinsSlave(this, slave).release();
+      new JenkinsSlave(this, slave, false).release();
     }
   }
   
   public String buildURL(String actionURL) {
     StringBuilder sb = new StringBuilder(scheme);
-    sb.append("://").append(masterHost).append(":").append(port).append("/").append(actionURL);
+    sb.append("://").append(masterHost).append(":").append(port).append("/");
+    if (subfix != null && !subfix.isEmpty()) sb.append(subfix).append("/");
+    sb.append(actionURL);
     return sb.toString();
   }
   

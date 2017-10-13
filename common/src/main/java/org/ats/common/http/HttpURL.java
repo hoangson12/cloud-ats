@@ -20,7 +20,7 @@ public class HttpURL {
 
   private String domain;
   
-  private int port = 80;
+  private int port = -1;
   
   private String path;
   
@@ -81,6 +81,11 @@ public class HttpURL {
     
     if (domain == null)
       domain = host;
+    
+    if (port == -1) {
+      if ("http".equals(protocol)) port = 80;
+      else if ("https".equals(protocol)) port = 443;
+    }
 
     if (qpath == null || qpath.length() <= 0)
       return;
@@ -185,7 +190,25 @@ public class HttpURL {
   }
   
   public String getPath() {
-    return path;
+    return path == null ? path  = "/" : path;
+  }
+  
+  public String getFullPath() {
+    
+    if (this.path == null) return null;
+    
+    StringBuilder sb = new StringBuilder(this.path);
+   if (query.size() > 0) {
+     sb.append('?');
+     Iterator<Map.Entry<String, String>> i = query.entrySet().iterator();
+     while(i.hasNext()) {
+       Map.Entry<String, String> entry = i.next();
+       sb.append(entry.getKey()).append("=").append(entry.getValue());
+       if (i.hasNext()) sb.append('&');
+     }
+   }
+   if (ref != null && !ref.isEmpty()) sb.append("#").append(ref); 
+    return sb.toString();
   }
   
   public String getQueryString() {

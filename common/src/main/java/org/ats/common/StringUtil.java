@@ -24,4 +24,21 @@ public class StringUtil {
     }
     return new String(baos.toByteArray(), "UTF-8");
   }
+  
+  public static String normalizeName(String name) {
+    char[] chars = name.toCharArray();
+    StringBuilder sb = new StringBuilder();
+    int i = 0;
+    
+    for(i = 0; i < chars.length; i++) {
+      if(Character.isJavaIdentifierStart(chars[i])) {
+        sb.append(chars[i]);
+        break;
+      }
+    }
+    for(int j = i+1; j < chars.length; j++) {
+      if (Character.isJavaIdentifierPart(chars[j])) sb.append(chars[j]);
+    }
+    return sb.toString();
+  }
 }

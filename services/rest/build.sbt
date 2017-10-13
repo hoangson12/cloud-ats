@@ -1,0 +1,40 @@
+name := """rest"""
+
+version := "1.1-SNAPSHOT"
+
+lazy val root = (project in file(".")).enablePlugins(PlayJava)
+
+scalaVersion := "2.11.1"
+
+libraryDependencies ++= Seq(
+  cache,
+	"org.ats" % "cloud-common" % "1.1-SNAPSHOT",
+	"org.ats" % "cloud-jenkins" % "1.1-SNAPSHOT",
+	"org.ats.services" % "database" % "1.1-SNAPSHOT",
+	"org.ats.services" % "organization" % "1.1-SNAPSHOT",
+	"org.ats.services" % "event" % "1.1-SNAPSHOT",
+	"org.ats.services" % "datadriven" % "1.1-SNAPSHOT",
+	"org.ats.services" % "keyword" % "1.1-SNAPSHOT",
+	"org.ats.services" % "performance" % "1.1-SNAPSHOT",
+	"org.ats.services" % "vmachine" % "1.1-SNAPSHOT",
+	"org.ats.services" % "generator" % "1.1-SNAPSHOT",
+	"org.ats.services" % "executor" % "1.1-SNAPSHOT",
+	"org.ats.services" % "report" % "1.1-SNAPSHOT",
+	"org.ats.services" % "blob" % "1.1-SNAPSHOT",
+	"org.ats.services" % "selenium-upload" % "1.1-SNAPSHOT",
+	"org.ats.services" % "mix-project" % "1.1-SNAPSHOT",
+	"com.amazonaws" % "aws-java-sdk-ec2" % "1.10.15",
+	"net.sf.opencsv" % "opencsv" % "2.3",
+	"com.microsoft.azure" % "azure-core" % "0.9.2",
+	"com.microsoft.azure" % "azure-svc-mgmt" % "0.9.2",
+	"com.microsoft.azure" % "azure-svc-mgmt-network" % "0.9.2",
+	"com.microsoft.azure" % "azure-svc-mgmt-compute" % "0.9.2",
+	"com.microsoft.azure" % "azure-svc-mgmt-storage" % "0.9.2",
+	"com.sun.jersey" % "jersey-core" % "1.13"
+)
+
+
+resolvers ++= Seq(
+	Resolver.sonatypeRepo("snapshots"),
+	Resolver.mavenLocal
+)

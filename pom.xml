@@ -1,11 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
+  <properties>
+		<jclouds.version>1.9.0</jclouds.version>
+		<cloudats.version>1.1-SNAPSHOT</cloudats.version>
+		<azure.version>0.9.2</azure.version>
+  </properties>
 
   <groupId>org.ats</groupId>
   <artifactId>cloud</artifactId>
   <packaging>pom</packaging>
-  <version>0.1-SNAPSHOT</version>
+	<version>${cloudats.version}</version>
 
 
 	<dependencyManagement>
@@ -15,63 +21,116 @@
 			<dependency>
 				<groupId>org.ats</groupId>
 				<artifactId>cloud-common</artifactId>
-				<version>0.1-SNAPSHOT</version>
+				<version>${cloudats.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ats</groupId>
+				<artifactId>cloud-jenkins</artifactId>
+				<version>${cloudats.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ats.services</groupId>
+				<artifactId>database</artifactId>
+				<version>${cloudats.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ats.services</groupId>
+				<artifactId>organization</artifactId>
+				<version>${cloudats.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ats.services</groupId>
+				<artifactId>organization</artifactId>
+				<type>test-jar</type>
+				<version>${cloudats.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ats.services</groupId>
+				<artifactId>event</artifactId>
+				<version>${cloudats.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ats.services</groupId>
+				<artifactId>keyword</artifactId>
+				<version>${cloudats.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ats.services</groupId>
+				<artifactId>generator</artifactId>
+				<version>${cloudats.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ats.services</groupId>
+				<artifactId>executor</artifactId>
+				<version>${cloudats.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ats.services</groupId>
+				<artifactId>datadriven</artifactId>
+				<version>${cloudats.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ats.services</groupId>
+				<artifactId>performance</artifactId>
+				<version>${cloudats.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.ats.services</groupId>
+				<artifactId>vmachine</artifactId>
+				<version>${cloudats.version}</version>
 			</dependency>
 			
 			<dependency>
-			  <groupId>org.ats</groupId>
-				<artifactId>cloud-cloudstack</artifactId>
-				<version>0.1-SNAPSHOT</version>
+				<groupId>org.ats.services</groupId>
+				<artifactId>selenium-upload</artifactId>
+				<version>${cloudats.version}</version>
 			</dependency>
 
 			<dependency>
-			  <groupId>org.ats</groupId>
-				<artifactId>cloud-cloudstack</artifactId>
-				<classifier>tests</classifier>
-				<version>0.1-SNAPSHOT</version>
+				<groupId>org.ats.services</groupId>
+				<artifactId>report</artifactId>
+				<version>${cloudats.version}</version>
 			</dependency>
-
+			
 			<dependency>
-			  <groupId>org.ats</groupId>
-				<artifactId>cloud-user-mgt</artifactId>
-				<version>0.1-SNAPSHOT</version>
+				<groupId>org.ats.services</groupId>
+				<artifactId>blob</artifactId>
+				<version>${cloudats.version}</version>
 			</dependency>
-
+			
 			<dependency>
-			  <groupId>org.ats</groupId>
-				<artifactId>cloud-jenkins</artifactId>
-				<version>0.1-SNAPSHOT</version>
+				<groupId>org.ats.services</groupId>
+				<artifactId>mix-project</artifactId>
+				<version>${cloudats.version}</version>
 			</dependency>
-
-			<dependency>
-			  <groupId>org.ats</groupId>
-				<artifactId>cloud-gitlab</artifactId>
-				<version>0.1-SNAPSHOT</version>
-			</dependency>
-
-			<dependency>
-			  <groupId>org.ats</groupId>
-				<artifactId>cloud-gitlab</artifactId>
-				<classifier>tests</classifier>
-				<version>0.1-SNAPSHOT</version>
-			</dependency>
-
-			<dependency>
-			  <groupId>org.ats</groupId>
-				<artifactId>cloud-jmeter</artifactId>
-				<version>0.1-SNAPSHOT</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.jclouds</groupId>
-				<artifactId>jclouds-all</artifactId>
-				<version>1.7.2</version>
-			</dependency>
-
+			
 			<dependency>
 				<groupId>org.mongodb</groupId>
 				<artifactId>mongo-java-driver</artifactId>
-				<version>2.12.2</version>
+				<version>2.12.4</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.typesafe.akka</groupId>
+				<artifactId>akka-actor_2.11</artifactId>
+				<version>2.3.9</version>
+			</dependency>
+
+			<dependency>
+				<groupId>joda-time</groupId>
+				<artifactId>joda-time</artifactId>
+				<version>2.8.1</version>
 			</dependency>
 
 			<dependency>
@@ -84,6 +143,18 @@
 				<groupId>org.json</groupId>
 				<artifactId>json</artifactId>
 				<version>20140107</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.jsoup</groupId>
+				<artifactId>jsoup</artifactId>
+				<version>1.8.3</version>
+			</dependency>
+
+			<dependency>
+				<groupId>net.sf.opencsv</groupId>
+				<artifactId>opencsv</artifactId>
+				<version>2.3</version>
 			</dependency>
 
 			<dependency>
@@ -104,23 +175,23 @@
 				<version>1.0.1</version>
 			</dependency>
 
-			<dependency>
-				<groupId>org.apache.cloudstack</groupId>
-				<artifactId>cloud-api</artifactId>
-				<version>4.3.0</version>
-			</dependency>
-
 			<!-- http client -->
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
-				<version>4.2.1</version>
+				<version>4.3.1</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpcore</artifactId>
-				<version>4.2.1</version>
+				<version>4.3.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-compress</artifactId>
+				<version>1.8.1</version>
 			</dependency>
 
 			<dependency>
@@ -130,32 +201,121 @@
 			</dependency>
 			<!-- end -->
 
-			<!-- Jenkins api -->
 			<dependency>
-				<groupId>org.jenkins-ci.main</groupId>
-				<artifactId>cli</artifactId>
-				<version>1.558</version>
+				<groupId>com.google.inject</groupId>
+				<artifactId>guice</artifactId>
+				<version>3.0</version>
 			</dependency>
 
 			<dependency>
-				<groupId>org.jenkins-ci.main</groupId>
-				<artifactId>jenkins-core</artifactId>
-				<version>1.558</version>
+				<groupId>com.google.inject.extensions</groupId>
+				<artifactId>guice-assistedinject</artifactId>
+				<version>3.0</version>
 			</dependency>
 
 			<dependency>
-				<groupId>org.jenkins-ci.plugins</groupId>
-				<artifactId>ssh-slaves</artifactId>
-				<version>1.6</version>
+				<groupId>com.google.code.findbugs</groupId>
+				<artifactId>jsr305</artifactId>
+				<version>3.0.0</version>
 			</dependency>
-			<!-- End Jenkins dependencies -->
 
+			<!-- JClouds Dependencies -->
 
-			<!-- GitLab -->
 			<dependency>
-				<groupId>org.gitlab</groupId>
-				<artifactId>java-gitlab-api</artifactId>
-				<version>1.1.4</version>
+				<groupId>org.apache.jclouds.driver</groupId>
+				<artifactId>jclouds-slf4j</artifactId>
+				<version>${jclouds.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.jclouds.driver</groupId>
+				<artifactId>jclouds-sshj</artifactId>
+				<version>${jclouds.version}</version>
+			</dependency>
+
+			<!-- jclouds OpenStack dependencies -->
+			<dependency>
+				<groupId>org.apache.jclouds.api</groupId>
+				<artifactId>openstack-keystone</artifactId>
+				<version>${jclouds.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.jclouds.api</groupId>
+				<artifactId>openstack-nova</artifactId>
+				<version>${jclouds.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.jclouds.api</groupId>
+				<artifactId>openstack-swift</artifactId>
+				<version>${jclouds.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.jclouds.api</groupId>
+				<artifactId>openstack-cinder</artifactId>
+				<version>${jclouds.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.jclouds.api</groupId>
+				<artifactId>openstack-trove</artifactId>
+				<version>${jclouds.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.jclouds.labs</groupId>
+				<artifactId>openstack-glance</artifactId>
+				<version>${jclouds.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.jclouds.labs</groupId>
+				<artifactId>openstack-marconi</artifactId>
+				<version>${jclouds.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.jclouds.labs</groupId>
+				<artifactId>openstack-neutron</artifactId>
+				<version>${jclouds.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.amazonaws</groupId>
+				<artifactId>aws-java-sdk-ec2</artifactId>
+				<version>1.10.15</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.microsoft.azure</groupId>
+				<artifactId>azure-core</artifactId>
+				<version>${azure.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.microsoft.azure</groupId>
+				<artifactId>azure-svc-mgmt</artifactId>
+				<version>${azure.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.microsoft.azure</groupId>
+				<artifactId>azure-svc-mgmt-network</artifactId>
+				<version>${azure.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.microsoft.azure</groupId>
+				<artifactId>azure-svc-mgmt-compute</artifactId>
+				<version>${azure.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.microsoft.azure</groupId>
+				<artifactId>azure-svc-mgmt-storage</artifactId>
+				<version>${azure.version}</version>
 			</dependency>
 
 			<dependency>
@@ -165,24 +325,28 @@
 				<scope>test</scope>
 			</dependency>
 
+			<dependency>
+				<groupId>org.testng</groupId>
+				<artifactId>testng</artifactId>
+				<version>6.8.21</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.seleniumhq.selenium</groupId>
+				<artifactId>selenium-java</artifactId>
+				<version>2.48.2</version>
+				<scope>test</scope>
+			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 
 	<modules>
 		<module>common</module>
 		<module>jenkins</module>
-		<module>components</module>
-		<module>cloudstack</module>
-		<module>jmeter</module>
-		<module>gitlab</module>
+		<module>services</module>
 	</modules>
-
-	<repositories>
-		<repository>
-			<id>jenkins-release</id>
-			<url>http://repo.jenkins-ci.org/releases/</url>
-		</repository>
-	</repositories>
 
 	<build>
 		<plugins>
@@ -190,8 +354,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -216,18 +380,6 @@
 						</property>
 					</systemProperties>
 				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>

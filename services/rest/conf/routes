@@ -1,0 +1,163 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# for testing only
+OPTIONS /*path                          controllers.Application.preflight(path: String)
+
+################################## RESTful API ######################################
+
+# Return current context
+GET     /api/v1/context                 @controllers.AuthenticationController.current()
+
+# Authenticate users
+POST    /api/v1/user/login              @controllers.AuthenticationController.login()
+GET     /api/v1/user/logout             @controllers.AuthenticationController.logout()
+POST	/api/v1/user/register			@controllers.AuthenticationController.register()
+GET		/api/v1/user/checkAccount		@controllers.AuthenticationController.checkAccount()
+
+GET		/api/v1/user/tenants			@controllers.AuthenticationController.tenants()
+
+# User controller
+GET     /api/v1/user/spaces             @controllers.UserController.spaces()
+GET     /api/v1/user/go/:spaceId        @controllers.UserController.goTo(spaceId)
+
+# DataDriven controller
+GET		/api/v1/datas/:projectId        @controllers.DataDrivenController.list(projectId)
+POST    /api/v1/data/:projectId         @controllers.DataDrivenController.create(projectId)
+GET		/api/v1/data/:id		        @controllers.DataDrivenController.get(id)
+PUT     /api/v1/data                    @controllers.DataDrivenController.update()
+DELETE	/api/v1/data			    	@controllers.DataDrivenController.delete()
+POST	/api/v1/data/:projectId/upload/:caseId	@controllers.DataDrivenController.upload(projectId,caseId)
+PUT     /api/v1/data/rename                     @controllers.DataDrivenController.rename()
+#######################################################################################################
+
+# Acl/space
+GET		/api/v1/acl/spaces					@controllers.SpaceController.list()
+PUT		/api/v1/acl/space					@controllers.SpaceController.update()
+DELETE	/api/v1/acl/space/:spaceId			@controllers.SpaceController.delete(spaceId)
+
+# Acl/role
+GET		/api/v1/acl/roles					@controllers.RoleController.list()
+GET		/api/v1/acl/listUser/:roleId		@controllers.RoleController.listUser(roleId)
+GET		/api/v1/acl/role/:roleId			@controllers.RoleController.get(roleId)
+POST	/api/v1/acl/role				 	@controllers.RoleController.update()
+DELETE	/api/v1/acl/role/:roleId			@controllers.RoleController.delete(roleId)
+
+#######################################################################################################
+
+# Keyword project controller 
+
+GET     /api/v1/project/keywords                         @controllers.KeywordController.list()
+GET     /api/v1/project/keyword/:projectId               @controllers.KeywordController.get(projectId)
+POST    /api/v1/project/keyword/:projectId/run           @controllers.KeywordController.run(projectId)
+POST    /api/v1/project/keyword                          @controllers.KeywordController.create()
+PUT		/api/v1/project/keyword							 @controllers.KeywordController.update()
+DELETE	/api/v1/project/keyword							 @controllers.KeywordController.delete()
+GET		/api/v1/project/keyword/:projectId/report/:jobId @controllers.KeywordController.report(projectId,jobId)
+GET		/api/v1/project/keyword/:projectId/report/status/:jobId @controllers.KeywordController.updateStatus(projectId, jobId)
+GET		/api/v1/project/keyword/:projectId/reports	     @controllers.KeywordController.listReport(projectId)
+GET		/api/v1/project/keyword/:projectId/stop			 @controllers.KeywordController.stopProject(projectId)
+GET		/api/v1/project/keyword/:projectId/logs			 @controllers.KeywordController.viewLog(projectId)	
+GET		/api/v1/project/keyword/:projectId/job/:jobId/logs			 @controllers.KeywordController.viewJobLog(projectId, jobId)
+GET		/api/v1/project/keyword/:projectId/download/:jobId	@controllers.KeywordController.download(projectId,jobId)
+GET     /api/v1/project/keyword/:projectId/report/:jobId/case/:caseReportId  @controllers.KeywordController.getReportCase(projectId,jobId,caseReportId)
+GET		/api/v1/project/keyword/:projectId/report/:jobId/suite/:suiteId/:suiteReportId   @controllers.KeywordController.suiteReport(projectId, jobId, suiteId, suiteReportId)
+GET		/api/v1/project/keyword/:projectId/report/:jobId/suite/:suiteId/:suiteReportId/lastest/jobs   @controllers.KeywordController.getLastestJobWithSuiteId(projectId, jobId, suiteId, suiteReportId)
+GET     /api/v1/project/keyword/:projectId/report/:jobId/suite/:suiteId/:suiteReportId/case/:caseReportId/image  @controllers.KeywordController.showImage(projectId, jobId, suiteId, suiteReportId, caseReportId)
+
+# Keyword upload project controller
+POST	/api/v1/project/selenium					 @controllers.SeleniumUploadController.create()
+GET		/api/v1/project/selenium/:projectId		     @controllers.SeleniumUploadController.get(projectId)
+POST	/api/v1/project/selenium/:projectId/upload	 @controllers.SeleniumUploadController.upload(projectId)
+GET     /api/v1/project/seleniums                    @controllers.SeleniumUploadController.list()
+GET		/api/v1/project/selenium/:projectId/run			    @controllers.SeleniumUploadController.run(projectId)
+GET		/api/v1/project/selenium/:projectId/stop			@controllers.SeleniumUploadController.stop(projectId)
+PUT		/api/v1/project/selenium							@controllers.SeleniumUploadController.update()
+DELETE	/api/v1/project/selenium							@controllers.SeleniumUploadController.delete()
+GET		/api/v1/project/selenium/:projectId/reports			@controllers.SeleniumUploadController.listReport(projectId)
+GET		/api/v1/project/selenium/:projectId/report/:jobId	@controllers.SeleniumUploadController.report(projectId,jobId)
+GET		/api/v1/project/selenium/:projectId/download/:jobId	@controllers.SeleniumUploadController.download(projectId,jobId)
+# Case controller
+GET     /api/v1/project/keyword/:projectId/reference/cases  @controllers.CaseController.references(projectId)
+GET     /api/v1/project/keyword/:projectId/cases  @controllers.CaseController.list(projectId)
+POST    /api/v1/project/keyword/:projectId/case   @controllers.CaseController.create(projectId)
+PUT     /api/v1/project/keyword/:projectId/case   @controllers.CaseController.update(projectId)
+DELETE  /api/v1/project/keyword/:projectId/case/:caseId    @controllers.CaseController.delete(projectId, caseId)
+GET		/api/v1/project/keyword/:projectId/case/:caseId/clone	@controllers.CaseController.cloneCase(projectId, caseId)
+GET		/api/v1/project/keyword/:projectId/case/:caseId		@controllers.CaseController.get(projectId, caseId)
+PUT     /api/v1/project/keyword/:projectId/case/rename   	@controllers.CaseController.rename(projectId)
+# Suite controller
+
+GET     /api/v1/project/keyword/:projectId/suites   @controllers.SuiteController.list(projectId)
+POST    /api/v1/project/keyword/:projectId/suite    @controllers.SuiteController.create(projectId)
+PUT     /api/v1/project/keyword/:projectId/suite    @controllers.SuiteController.update(projectId)
+DELETE  /api/v1/project/keyword/:projectId/suite/:suiteId    @controllers.SuiteController.delete(projectId, suiteId)
+GET		/api/v1/project/keyword/:projectId/suite/:suiteId/clone	@controllers.SuiteController.cloneSuite(projectId, suiteId)
+GET		/api/v1/project/keyword/:projectId/suite/:suiteId	 @controllers.SuiteController.get(projectId, suiteId)
+
+# Custom keyword controller
+
+GET     /api/v1/project/keyword/:projectId/customs  @controllers.CustomKeywordController.list(projectId)
+POST    /api/v1/project/keyword/:projectId/custom   @controllers.CustomKeywordController.create(projectId)
+PUT		/api/v1/project/keyword/:projectId/custom	@controllers.CustomKeywordController.update(projectId)
+DELETE	/api/v1/project/keyword/:projectId/custom/:customKeywordId	@controllers.CustomKeywordController.delete(projectId, customKeywordId)
+GET		/api/v1/project/keyword/:projectId/custom/:customKeywordId	@controllers.CustomKeywordController.get(projectId, customKeywordId)
+PUT     /api/v1/project/keyword/:projectId/custom/rename   	@controllers.CustomKeywordController.rename(projectId)
+# Event tracking
+
+GET     /api/v1/event/close/:token   @controllers.EventController.close(token)
+GET     /api/v1/event/feed/:token    @controllers.EventController.feed(token)
+
+########################################################################################################
+
+# Performance controller
+GET		/api/v1/project/performances										@controllers.PerformanceController.list()
+POST	/api/v1/project/performance											@controllers.PerformanceController.create()
+GET		/api/v1/project/performance/:projectId								@controllers.PerformanceController.get(projectId)
+PUT		/api/v1/project/performance											@controllers.PerformanceController.update()
+DELETE	/api/v1/project/performance											@controllers.PerformanceController.delete()											
+POST	/api/v1/project/performance/run/:projectId							@controllers.PerformanceController.run(projectId)
+GET		/api/v1/project/performance/reports/:projectId/:jobId	    		@controllers.PerformanceController.report(projectId, jobId)
+GET		/api/v1/project/performance/report/sampler/:id						@controllers.PerformanceController.getReport(id)
+GET		/api/v1/project/performance/stop/:projectId							@controllers.PerformanceController.stopProject(projectId)
+GET		/api/v1/project/performance/logs/:projectId							@controllers.PerformanceController.viewLog(projectId)
+GET		/api/v1/project/performance/:projectId/download/:jobId				@controllers.PerformanceController.download(projectId,jobId)
+# Script controller
+
+GET		/api/v1/project/performance/:projectId/scripts				@controllers.ScriptController.list(projectId)
+POST	/api/v1/project/performance/:projectId/upload				@controllers.ScriptController.createByFile(projectId)
+POST	/api/v1/project/performance/:projectId/script				@controllers.ScriptController.createBySamplers(projectId)
+GET		/api/v1/project/performance/:projectId/script/:id			@controllers.ScriptController.get(projectId, id)
+DELETE	/api/v1/project/performance/:projectId/script/:id			@controllers.ScriptController.delete(projectId, id)
+PUT		/api/v1/project/performance/:projectId/script				@controllers.ScriptController.update(projectId)
+GET		/api/v1/project/performance/:projectId/script/:scriptId/clone	@controllers.ScriptController.cloneScript(projectId, scriptId)
+
+# Dashboard controller
+GET		/api/v1/dashboard/summary									@controllers.DashboardController.summary()
+
+# Csv file controller
+POST    /api/v1/project/performance/:scriptId/csv/upload            @controllers.FileController.uploadCSVData(scriptId)
+GET     /api/v1/project/performance/:scriptId/csv/list              @controllers.FileController.list(scriptId)
+GET		/api/v1/project/performance/:scriptId/csv/:csvId			@controllers.FileController.getCSVData(scriptId, csvId)
+DELETE	/api/v1/project/performance/:scriptId/csv/delete/:csvId		@controllers.FileController.deleteCSVData(scriptId, csvId)
+PUT 	/api/v1/project/performance/:scriptId/csv/update/:csvId		@controllers.FileController.updateTempCSVData(scriptId, csvId)
+DELETE	/api/v1/project/performance/:scriptId/csv/deletetemp		@controllers.FileController.deleteTempCSVData(scriptId)
+
+# Mix project controller
+GET     /api/v1/projects											@controllers.MixProjectController.list()
+GET     /api/v1/project/:id                                         @controllers.MixProjectController.get(id)
+POST	/api/v1/project												@controllers.MixProjectController.create()
+DELETE	/api/v1/project/:id/:name								@controllers.MixProjectController.delete(id, name)
+GET		/api/v1/project/clone/:id								@controllers.MixProjectController.cloneProject(id)
+
+#Tenant admin controller
+GET		/api/v1/spaces												@controllers.TenantAdminController.list()
+DELETE	/api/v1/space												@controllers.TenantAdminController.delete()
+POST	/api/v1/space/:name											@controllers.TenantAdminController.create(name)
+GET		/api/v1/user/search/:text									@controllers.TenantAdminController.search(text)									
+POST	/api/v1/tenant/admin										@controllers.TenantAdminController.addAdmin()
+PUT		/api/v1/space												@controllers.TenantAdminController.update()
+DELETE  /api/v1/tenant/admin/role									@controllers.TenantAdminController.deleteRole()
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
